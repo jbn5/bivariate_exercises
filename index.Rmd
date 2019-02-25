@@ -1,8 +1,4 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 <br> 
 <center><img src="http://i.imgur.com/sSaOozN.png" width="500"></center>
 
@@ -44,7 +40,7 @@ As before, the nature of the data allows for some particular analytical techniqu
 
 This time, I will use the [data about crime](https://data.seattle.gov/Public-Safety/Crime-Data/4fs7-3vj5) from the Seattle Open Data portal:
 
-```{r collect, eval=FALSE}
+```{r collect, eval=TRUE}
 link="https://github.com/EvansDataScience/data/raw/master/crime.RData"
 load(file = url(link))
 ```
@@ -52,18 +48,18 @@ load(file = url(link))
 
 The data available are:
 
-```{r names, eval=FALSE}
+```{r names, eval=TRUE}
 names(crime)
 ```
 
 A quick look will give us:
-```{r head, eval=FALSE}
+```{r head, eval=TRUE}
 head(crime)
 ```
 
 Let's see what kind of data we have:
 
-```{r str, eval=FALSE}
+```{r str, eval=TRUE}
 str(crime,width = 70,strict.width='cut')
 ```
 
@@ -78,14 +74,14 @@ _____
 
 The main way to organize these relationships are the contingency tables. Let's select a couple of categorical variables:
 
-```{r table, eval=FALSE}
+```{r table, eval=TRUE}
 (CrimeTotal=table(crime$crimecat,crime$Occurred.DayTime))
 ```
 
 
 The table above shows counts, but in most situations, it is important to see relative values:
 
-```{r table_rel_PIPES,eval=FALSE}
+```{r table_rel_PIPES,eval=TRUE}
 # using "pipes" to help readability:
 library(magrittr)
 (CrimeTotal=table(crime$crimecat,crime$Occurred.DayTime)%>% #create table and then...
@@ -98,7 +94,7 @@ library(magrittr)
 Those tables show total counts or percents. However, when a table tries to hypothesize a relationship, you should have the _independent_ variable in the columns, and the _dependent_ one in the rows; then, the percent should be calculated by column, to see how the levels of the dependent variable varies by each level of the independent one, and compare along rows.
 
 
-```{r table_byCol,eval=FALSE}
+```{r table_byCol,eval=TRUE}
 CrimeCol=table(crime$crimecat,crime$Occurred.DayTime)%>%
          prop.table(margin = 2)%>%   # 2 is % by column
          "*"(100)%>%
@@ -113,7 +109,7 @@ The complexity of two variables requires plots, as tables like these will not al
 
 As before, we can use the bar plot with the contingency table as input:
 
-```{r BADplot,eval=FALSE}
+```{r BADplot,eval=TRUE}
 barplot(CrimeCol)
 ```
 
@@ -121,20 +117,20 @@ This plot will need a lot of work, so the base capabilities of R may not be a go
 
 However, when using alternative/more specialized plotting features you may need to convert your table into a dataframe of frequencies, let me create the base proportions table:
 
-```{r convertToDFgg,eval=FALSE}
+```{r convertToDFgg,eval=TRUE}
 df.T=as.data.frame(CrimeTotal) # table of proportion based on total
 # YOU GET:
 head(df.T)
 ```
 
 We should rename the above table:
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 names(df.T)=c('Crime','Daytime','Percent') #renaming
 head(df.T)
 ```
 
 A first option you may have is to reproduce the table:
-```{r plotTable_gg, eval=FALSE}
+```{r plotTable_gg, eval=TRUE}
 library(ggplot2)                           
 base = ggplot(df.T, aes(Daytime,Crime)) 
 # plot value as point, size by value of percent
@@ -147,7 +143,7 @@ tablePlot2
 ```
 
 ...some more work:
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 tablePlot3 = tablePlot2 + scale_size_continuous(range=c(0,10)) #change 10?
 tablePlot4 = tablePlot3 + theme_minimal() # less ink
 tablePlot4 + theme(legend.position="none") # no legend
@@ -157,7 +153,7 @@ tablePlot4 + theme(legend.position="none") # no legend
 
 The plot looks nice, but unless the differences are clearly cut, you may see more noise than information, which distracts and delays decision making. Keep in mind that _length_ of bars are easier to compare than circle _areas_. You need a barplot, but with better tools:
 
-```{r facet, eval=FALSE}
+```{r facet, eval=TRUE}
 base  = ggplot(df.T, aes(x = Crime, y = Percent ) ) 
 bars1 = base + geom_bar( stat = "identity" ) + theme_minimal()
 # bar per day time with 'facet'
@@ -167,7 +163,7 @@ bars2
 
 ...some more work:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 # change the minimal theme
 bars3 = bars2 + theme( axis.text.x = element_text(angle = 90,
                                                   hjust = 1,
@@ -178,15 +174,21 @@ bars3
 
 And, the original relationship Input-Output table can be plotted like this:
 
-```{r orderFacet, eval=FALSE}
+```{r orderFacet, eval=TRUE}
 df.C=as.data.frame(CrimeCol)
 colnames(df.C)=c('Crime','Daytime','Percent')
 #####
+
 base  = ggplot(df.C, aes(x = reorder(Crime, Percent), y = Percent ) ) 
+
 bars1 = base + geom_segment(aes(y = 0, x = reorder(Crime, Percent), yend = Percent, xend = Crime), stat = 'identity', color = "black")
+
 bars2 = bars1 + facet_wrap( ~ Daytime ,nrow = 1) + geom_point()
+
 bars3 = bars2 + coord_flip() + theme(axis.text.y = element_text(size=6,angle = 0)) + labs(x = "Total Percentage Per Daytime", y = "Percentage", title = "Percentage of Crime Based on Daytime", caption = "Source: Seattle Open Data Portal")
+
 bars4 = bars3 + theme(panel.background = element_rect(fill = 'gray97'), plot.title=(element_text(hjust=0.5)), plot.caption=element_text(vjust = 0.1), axis.title.x = element_text(vjust = -1), axis.title.y = element_text(vjust = 2, hjust = .5))
+
 bars4
 
 #The type of crime is not ordinal, then we could reorder the bars:
@@ -194,15 +196,7 @@ bars4
 
 
   
-```{r orderFacet, eval=FALSE}
-
-```
-
-```{r}
-
-```
-
-```{r}
+```{r orderFacet, eval=TRUE}
 
 ```
 
@@ -214,7 +208,7 @@ Exercise 1:<br> Turn the bars into lollipop with the right components.
 
 Once you see a plot of two bivariate categorical data, you may consider other plots:
 
-```{r heatAscending, eval=FALSE}
+```{r heatAscending, eval=TRUE}
 # heatplot
 base = ggplot(df.C, aes(x = Daytime, y = reorder(Crime, -Percent), fill = Percent)) #Add a (-) in front of percent
 heat1 = base +  geom_tile() 
@@ -225,7 +219,7 @@ heat2
 
 Some work on the legend:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 heat3 = heat2 + theme_classic() 
 
 heat4 = heat3 + theme(axis.text.x = element_text(angle = 0, vjust = 0.6), 
