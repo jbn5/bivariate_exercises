@@ -1,8 +1,4 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 
 <br> 
 <center><img src="http://i.imgur.com/sSaOozN.png" width="500"></center>
@@ -107,8 +103,6 @@ CrimeCol=table(crime$crimecat,crime$Occurred.DayTime)%>%
 
 CrimeCol
 ```
-
-
 
 The complexity of two variables requires plots, as tables like these will not allow you to discover *association patterns* easily, even though they are already a summary of two columns. However, you must check the data format the plotting functions require, as most plots will use the contingency table as input (not the raw data).
 
@@ -257,7 +251,7 @@ summary(crime$DaysToReport)
 
 There are several good categorical variables that can be used to study the behavior of this one. Let's use _precint_:
 
-```{r tapply, eval=FALSE}
+```{r tapply, eval=TRUE}
 tapply(crime$DaysToReport,crime$Precinct,mean)
 ```
 
@@ -330,7 +324,7 @@ boxplot(DaysToReport~Precinct,data=crimeY2000,
 
 For sure, it would be better if the numerical units  were in years:
 
-```{r convertYear, eval=FALSE}
+```{r convertYear, eval=TRUE}
 crimeY2000$YearsToReport=crimeY2000$DaysToReport/365
 boxplot(YearsToReport~Precinct,data=crimeY2000,
         main="One year or more (from 2000)")
@@ -540,7 +534,7 @@ res.aov <- aov(YearsToReport ~ Precinct, data = anovaData)
 summary(res.aov)[[1]]$Pr[1]
 ```
 
-```{r nonparam, eval=FALSE}
+```{r nonparam, eval=TRUE}
 # non parametric
 kruskal.test(YearsToReport ~ Precinct, data = anovaData)
 ```
